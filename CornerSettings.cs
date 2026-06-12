@@ -111,11 +111,13 @@ namespace HotCornersWin
 
         [DataMember] public bool Enabled { get; set; }
         [DataMember] public List<MonitorCornerSettings> Monitors { get; set; }
+        [DataMember] public string ThemePreference { get; set; }
 
         public AppSettings()
         {
             Enabled = true;
             Monitors = new List<MonitorCornerSettings>();
+            ThemePreference = "Auto";
         }
 
         // Called before deserialization fills in values — ensures defaults if a key is absent
@@ -124,6 +126,7 @@ namespace HotCornersWin
         {
             Enabled = true;
             Monitors = new List<MonitorCornerSettings>();
+            ThemePreference = "Auto";
         }
 
         public MonitorCornerSettings GetOrCreateMonitor(string deviceName)

@@ -1,6 +1,9 @@
 using System;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using MaterialSkin;
+using Microsoft.Win32;
 
 namespace HotCornersWin
 {
@@ -19,8 +22,11 @@ namespace HotCornersWin
             InitializeComponent();
 
             _settings = AppSettings.Load();
+            ThemeHelper.Apply(_settings);
 
             BuildTrayIcon();
+
+            SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
 
             _cornerDetector = new CornerDetector();
             _cornerDetector.CornerEntered += OnCornerEntered;
@@ -58,6 +64,7 @@ namespace HotCornersWin
                 ContextMenuStrip = _trayMenu,
                 Visible = true
             };
+            _trayIcon.DoubleClick += (s, e) => OnSettings(null, EventArgs.Empty);
 
             UpdateToggleUI();
         }
@@ -108,8 +115,32 @@ namespace HotCornersWin
         {
             bool on = _settings.Enabled;
             _toggleItem.Text = on ? "Disable" : "Enable";
-            _trayIcon.Icon = BuildIcon(on);
+            SetTrayIcon(on);
             _trayIcon.Text = on ? "HotCornersWin" : "HotCornersWin (disabled)";
+        }
+
+        // Replace the tray icon, disposing the previous one so we don't accumulate
+        // icon handles as the state/accent changes.
+        private void SetTrayIcon(bool on)
+        {
+            var previous = _trayIcon.Icon;
+            _trayIcon.Icon = BuildIcon(on);
+            previous?.Dispose();
+        }
+
+        private void OnUserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+        {
+            // General covers theme/accent-color changes. Re-theme if following the
+            // system, and always refresh the tray icon to the new accent color.
+            if (e.Category == UserPreferenceCategory.General)
+            {
+                BeginInvoke(new Action(() =>
+                {
+                    if (_settings.ThemePreference == "Auto")
+                        ThemeHelper.Apply(_settings);
+                    SetTrayIcon(_settings.Enabled);
+                }));
+            }
         }
 
         private void OnExit(object sender, EventArgs e)
@@ -118,28 +149,49 @@ namespace HotCornersWin
             Application.Exit();
         }
 
+        // 16x16 black tile with a colored square in each corner — a tiny
+        // "hot corners" glyph. Uses the live Windows accent color (same as the
+        // title bar) when enabled, gray when disabled. Rebuilt on accent changes.
         private static Icon BuildIcon(bool active)
         {
-            var bmp = new Bitmap(16, 16);
-            using (var g = Graphics.FromImage(bmp))
+            var color = active ? ThemeHelper.GetWindowsAccentColor() : Color.Gray;
+            using (var bmp = new Bitmap(16, 16))
             {
-                g.Clear(Color.Transparent);
-                var color = active ? Color.DodgerBlue : Color.Gray;
-                using (var b = new SolidBrush(color))
+                using (var g = Graphics.FromImage(bmp))
                 {
-                    g.FillRectangle(b, 0, 0, 6, 6);
-                    g.FillRectangle(b, 10, 0, 6, 6);
-                    g.FillRectangle(b, 0, 10, 6, 6);
-                    g.FillRectangle(b, 10, 10, 6, 6);
+                    g.Clear(Color.Black);
+                    using (var b = new SolidBrush(color))
+                    {
+                        g.FillRectangle(b, 0, 0, 6, 6);
+                        g.FillRectangle(b, 10, 0, 6, 6);
+                        g.FillRectangle(b, 0, 10, 6, 6);
+                        g.FillRectangle(b, 10, 10, 6, 6);
+                    }
+                }
+
+                IntPtr hIcon = bmp.GetHicon();
+                try
+                {
+                    // Clone into a managed icon so we can free the GDI handle now
+                    // instead of leaking one on every enable/disable toggle.
+                    using (var tmp = Icon.FromHandle(hIcon))
+                        return (Icon)tmp.Clone();
+                }
+                finally
+                {
+                    DestroyIcon(hIcon);
                 }
             }
-            return Icon.FromHandle(bmp.GetHicon());
         }
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool DestroyIcon(IntPtr hIcon);
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
+                SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
                 _mouseHook?.Dispose();
                 _trayIcon?.Dispose();
                 _trayMenu?.Dispose();

@@ -14,6 +14,8 @@ namespace HotCornersWin
         [EnumMember] VolumeDown,
         [EnumMember] ShowTaskbar,
         [EnumMember] LockScreen,
-        [EnumMember] CustomShortcut
+        [EnumMember] CustomShortcut,
+        [EnumMember] OpenRun,
+        [EnumMember] OpenExplorer
     }
 }

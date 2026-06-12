@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace HotCornersWin
@@ -21,6 +22,7 @@ namespace HotCornersWin
         private const byte VK_D        = 0x44;
         private const byte VK_TAB      = 0x09;
         private const byte VK_A        = 0x41;
+        private const byte VK_R        = 0x52;
         private const byte VK_T        = 0x54;
         private const byte VK_VOL_UP   = 0xAF;
         private const byte VK_VOL_DN   = 0xAE;
@@ -35,6 +37,8 @@ namespace HotCornersWin
                 case CornerAction.ActionCenter:  SendCombo(VK_LWIN, VK_A);   break;
                 case CornerAction.LockScreen:    LockWorkStation();           break;
                 case CornerAction.ShowTaskbar:   SendCombo(VK_LWIN, VK_T);   break;
+                case CornerAction.OpenRun:       SendCombo(VK_LWIN, VK_R);   break;
+                case CornerAction.OpenExplorer:  OpenExplorer();              break;
                 case CornerAction.VolumeUp:
                 {
                     // Each VK_VOLUME_UP keypress = 2% on Windows; round to nearest press
@@ -53,6 +57,12 @@ namespace HotCornersWin
                         SendParsedShortcut(customShortcut);
                     break;
             }
+        }
+
+        private static void OpenExplorer()
+        {
+            try { Process.Start("explorer.exe"); }
+            catch { /* shell unavailable — nothing useful to do */ }
         }
 
         private static void SendParsedShortcut(string shortcut)
