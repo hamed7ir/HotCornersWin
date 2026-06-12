@@ -19,8 +19,26 @@ Built from scratch in C# as a modern alternative to classic hot corner utilities
 
 
 ## Requirements
-- Windows 10/11
+
 - .NET Framework 4.7.2
+- Windows 7 / 8.1 / 10 / 11 (x86, x64, ARM32, ARM64)
+
+### Platform Notes
+
+| Platform | Status | Notes |
+|---|---|---|
+| Windows 11 x64/ARM64 | ✅ Fully supported | |
+| Windows 10 x64/ARM64 | ✅ Fully supported | |
+| Windows 10 ARM32 | ✅ Fully supported | |
+| Windows 8.1 x86/x64 | ✅ Supported | |
+| Windows 8.1 ARM (RT) | ✅ Supported | Install [KB4486105](https://go.microsoft.com/fwlink/?linkid=2088632) first to get .NET 4.7.2 |
+| Windows 7 | ⚠️ Partial | Install .NET 4.7.2 manually, DPI scaling may not work | not tested yet.
+
+### Windows RT 8.1 Setup
+1. Download and install `windows8.1-kb4486105-arm.msu`
+2. your device must be jailbrokern
+3. No need to restart but restart if it dont work on your device
+4. Run `HotCornersWin.exe` normally
 
 ## Usage
 1. Run HotCornersWin.exe
