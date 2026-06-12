@@ -1,6 +1,6 @@
 # HotCornersWin
 A lightweight Windows hot corners app with full multi-monitor support.
-Built from scratch in C# as a modern alternative to classic hot corner utilities.
+Built from scratch in C# as a modern alternative to classic hot corner utilities. inspire from winxcorner
 
 ## Features
 - ✅ Multi-monitor support with per-monitor corner configuration
