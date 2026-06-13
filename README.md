@@ -20,7 +20,7 @@ Built from scratch in C# as a modern alternative to classic hot corner utilities
 
 ## Requirements
 
-- .NET Framework 4.7.2
+- .NET Framework 4.6.1
 - Windows 7 / 8.1 / 10 / 11 (x86, x64, ARM32, ARM64)
 
 ### Platform Notes
@@ -47,6 +47,6 @@ Built from scratch in C# as a modern alternative to classic hot corner utilities
 4. Click OK to save
 
 ## Built with
-- C# .NET Framework 4.7.2
+- C# .NET Framework 4.6.1
 - MaterialSkin.2 for modern UI
 - Built with assistance from Claude (Anthropic) - https://claude.ai
